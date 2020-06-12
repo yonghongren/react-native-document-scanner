@@ -120,6 +120,7 @@ public class OpenNoteCameraView extends JavaCameraView implements PictureCallbac
     private View blinkView = null;
     private View mView = null;
     private boolean manualCapture = false;
+    public boolean capturing = true;
 
     public static OpenNoteCameraView mThis;
 
@@ -503,6 +504,7 @@ public class OpenNoteCameraView extends JavaCameraView implements PictureCallbac
 
     @Override
     public void onPreviewFrame(byte[] data, Camera camera) {
+        if (!capturing) return;
 
         Camera.Size pictureSize = camera.getParameters().getPreviewSize();
 
@@ -593,6 +595,7 @@ public class OpenNoteCameraView extends JavaCameraView implements PictureCallbac
     }
 
     public boolean requestManualPicture() {
+        capturing = false;
         this.blinkScreenAndShutterSound();
         this.waitSpinnerVisible();
 
@@ -603,10 +606,13 @@ public class OpenNoteCameraView extends JavaCameraView implements PictureCallbac
             try {
                 mCamera.takePicture(null, null, pCallback);
             } catch (Exception e) {
+                Log.d(TAG, "requestManualPicture" + e);
                 this.waitSpinnerInvisible();
             }
+            capturing = false;
             return true;
         }
+        capturing = false;
         return false;
     }
 
@@ -639,6 +645,7 @@ public class OpenNoteCameraView extends JavaCameraView implements PictureCallbac
                     blinkScreenAndShutterSound();
                 }
             } catch (Exception e) {
+                Log.d(TAG, "requestPicture:" + e);
                 waitSpinnerInvisible();
             } finally {
                 waitSpinnerInvisible();
